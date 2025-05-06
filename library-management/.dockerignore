@@ -1,0 +1,37 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE files
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.project
+.classpath
+.settings/
+.springBeans
+
+# Logs
+*.log
+application.log*
+
+# Local environment files
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+HELP.md
+
+# Build files
+Dockerfile*
+docker-compose*
