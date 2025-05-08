@@ -1,2 +1,9 @@
-*.DS_Store
-*.idea
+# macOS metadata
+**/.DS_Store
+
+# IDE/workspace settings
+**/.vscode/
+**/.idea/
+
+# Environment files
+**/.env
