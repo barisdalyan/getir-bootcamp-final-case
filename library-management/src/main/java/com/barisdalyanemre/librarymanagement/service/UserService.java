@@ -16,6 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,6 +31,13 @@ public class UserService {
         User user = findUserById(id);
         validateUserAccess(user);
         return userMapper.toDTO(user);
+    }
+    
+    public List<UserDTO> getAllUsers() {
+        // Only librarians can access this method (secured by @PreAuthorize in the controller)
+        return userRepository.findAll().stream()
+                .map(userMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional

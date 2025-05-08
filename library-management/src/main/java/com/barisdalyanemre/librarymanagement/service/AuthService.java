@@ -6,6 +6,7 @@ import com.barisdalyanemre.librarymanagement.dto.RegisterRequest;
 import com.barisdalyanemre.librarymanagement.entity.Role;
 import com.barisdalyanemre.librarymanagement.entity.User;
 import com.barisdalyanemre.librarymanagement.exception.BadRequestException;
+import com.barisdalyanemre.librarymanagement.exception.ResourceNotFoundException;
 import com.barisdalyanemre.librarymanagement.repository.UserRepository;
 import com.barisdalyanemre.librarymanagement.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -78,5 +79,19 @@ public class AuthService {
                 .name(user.getName())
                 .role(user.getRole().name())
                 .build();
+    }
+    
+    @Transactional
+    public void promoteToLibrarian(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        
+        if (user.getRole() == Role.LIBRARIAN) {
+            throw new BadRequestException("User is already a librarian");
+        }
+        
+        user.setRole(Role.LIBRARIAN);
+        userRepository.save(user);
+        log.info("User with ID: {} has been promoted to LIBRARIAN role", userId);
     }
 }

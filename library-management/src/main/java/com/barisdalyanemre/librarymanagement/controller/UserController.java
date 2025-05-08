@@ -30,6 +30,14 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @GetMapping
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    @Operation(summary = "Get all users", description = "Retrieve a list of all users. Only accessible by librarians.")
+    public ResponseEntity<Iterable<UserDTO>> getAllUsers() {
+        log.info("Retrieving all users");
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Update user", description = "Update user details. Librarians can update any user, patrons can only update their own details.")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest updateRequest) {
