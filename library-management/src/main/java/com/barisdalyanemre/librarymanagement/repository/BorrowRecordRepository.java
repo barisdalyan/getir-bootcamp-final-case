@@ -26,4 +26,8 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long
    
     @Query("SELECT br FROM BorrowRecord br WHERE br.borrowDate >= :startDate ORDER BY br.borrowDate DESC")
     List<BorrowRecord> findRecentBorrows(@Param("startDate") LocalDateTime startDate);
+    
+    @Query("SELECT br FROM BorrowRecord br JOIN FETCH br.user JOIN FETCH br.book " +
+           "WHERE br.returnDate IS NULL AND br.dueDate < :now ORDER BY br.dueDate ASC")
+    List<BorrowRecord> findAllOverdueWithUserAndBookDetails(@Param("now") LocalDateTime now);
 }

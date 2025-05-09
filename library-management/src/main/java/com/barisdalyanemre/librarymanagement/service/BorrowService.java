@@ -48,4 +48,17 @@ public interface BorrowService {
      * @return list of overdue borrow records
      */
     List<BorrowRecordDTO> getAllOverdueRecords();
+    
+    /**
+     * Process overdue books and send notifications
+     * This method is intended to be called by a scheduler
+     */
+    void processOverdueBooks();
+    
+    /**
+     * Generate a report of all overdue books in CSV format
+     * 
+     * @return CSV data as byte array
+     */
+    byte[] generateOverdueReportCsv();
 }

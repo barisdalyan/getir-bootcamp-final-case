@@ -7,11 +7,15 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -68,5 +72,27 @@ public class BorrowController {
     public ResponseEntity<List<BorrowRecordDTO>> getAllOverdueRecords() {
         log.info("Request to get all overdue records");
         return ResponseEntity.ok(borrowService.getAllOverdueRecords());
+    }
+
+    @GetMapping("/overdue/download")
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    @Operation(summary = "Download overdue books report as CSV", description = "Download a CSV report of all overdue books. Only accessible by librarians.")
+    public ResponseEntity<byte[]> downloadOverdueReport() {
+        log.info("Request to download overdue books report as CSV");
+        
+        byte[] csvContent = borrowService.generateOverdueReportCsv();
+        
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String filename = "overdue_books_" + timestamp + ".csv";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv"));
+        headers.setContentDispositionFormData("attachment", filename);
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(csvContent.length)
+                .body(csvContent);
     }
 }

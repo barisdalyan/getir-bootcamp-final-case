@@ -12,12 +12,14 @@ import com.barisdalyanemre.librarymanagement.repository.BorrowRecordRepository;
 import com.barisdalyanemre.librarymanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -150,11 +152,71 @@ public class BorrowServiceImpl implements BorrowService {
                 .collect(Collectors.toList());
     }
     
+    @Override
+    @Scheduled(cron = "0 0 0 * * ?") // Run at midnight every day
+    @Transactional(readOnly = true)
+    public void processOverdueBooks() {
+        LocalDateTime now = LocalDateTime.now();
+        List<BorrowRecord> overdueRecords = borrowRecordRepository.findAllOverdue(now);
+        
+        log.info("Processing {} overdue books", overdueRecords.size());
+        
+        // Just log overdue books information
+        for (BorrowRecord record : overdueRecords) {
+            log.info("Overdue book: '{}' borrowed by {}, due date was {}", 
+                    record.getBook().getTitle(), 
+                    record.getUser().getEmail(),
+                    record.getDueDate());
+        }
+    }
+    
+    @Override
+    public byte[] generateOverdueReportCsv() {
+        List<BorrowRecord> overdueRecords = borrowRecordRepository.findAllOverdue(LocalDateTime.now());
+        
+        if (overdueRecords.isEmpty()) {
+            return "No overdue books found".getBytes();
+        }
+        
+        StringBuilder csvContent = new StringBuilder();
+        // Add CSV headers
+        csvContent.append("Book Title,ISBN,Patron Name,Patron Email,Borrow Date,Due Date,Days Overdue\n");
+        
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime now = LocalDateTime.now();
+        
+        for (BorrowRecord record : overdueRecords) {
+            csvContent.append(escapeCsvField(record.getBook().getTitle())).append(",");
+            csvContent.append(escapeCsvField(record.getBook().getIsbn())).append(",");
+            csvContent.append(escapeCsvField(record.getUser().getName())).append(",");
+            csvContent.append(escapeCsvField(record.getUser().getEmail())).append(",");
+            csvContent.append(escapeCsvField(record.getBorrowDate().format(dateFormatter))).append(",");
+            csvContent.append(escapeCsvField(record.getDueDate().format(dateFormatter))).append(",");
+            
+            // Calculate days overdue
+            long daysOverdue = java.time.temporal.ChronoUnit.DAYS.between(record.getDueDate(), now);
+            csvContent.append(daysOverdue).append("\n");
+        }
+        
+        return csvContent.toString().getBytes();
+    }
+    
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+    }
+    
+    private String escapeCsvField(String field) {
+        if (field == null) {
+            return "";
+        }
+        // If the field contains commas, quotes, or newlines, wrap it in quotes and escape any quotes
+        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+            return "\"" + field.replace("\"", "\"\"") + "\"";
+        }
+        return field;
     }
 }
