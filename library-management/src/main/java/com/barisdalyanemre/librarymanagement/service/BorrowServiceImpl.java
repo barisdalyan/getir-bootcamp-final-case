@@ -4,6 +4,7 @@ import com.barisdalyanemre.librarymanagement.dto.BorrowRecordDTO;
 import com.barisdalyanemre.librarymanagement.entity.Book;
 import com.barisdalyanemre.librarymanagement.entity.BorrowRecord;
 import com.barisdalyanemre.librarymanagement.entity.User;
+import com.barisdalyanemre.librarymanagement.event.BookAvailabilityEvent;
 import com.barisdalyanemre.librarymanagement.exception.BadRequestException;
 import com.barisdalyanemre.librarymanagement.exception.ResourceNotFoundException;
 import com.barisdalyanemre.librarymanagement.mapper.BorrowRecordMapper;
@@ -32,6 +33,7 @@ public class BorrowServiceImpl implements BorrowService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final BorrowRecordMapper borrowRecordMapper;
+    private final BookAvailabilityService bookAvailabilityService;
     
     // Default loan period in days
     private static final int DEFAULT_LOAN_PERIOD_DAYS = 14;
@@ -77,6 +79,9 @@ public class BorrowServiceImpl implements BorrowService {
         book.setAvailable(false);
         bookRepository.save(book);
         
+        // Publish book availability event
+        publishAvailabilityEvent(book);
+        
         // Save borrow record
         BorrowRecord savedRecord = borrowRecordRepository.save(borrowRecord);
         log.info("User {} borrowed book {}", user.getEmail(), book.getTitle());
@@ -110,6 +115,9 @@ public class BorrowServiceImpl implements BorrowService {
         // Update book availability
         book.setAvailable(true);
         bookRepository.save(book);
+        
+        // Publish book availability event
+        publishAvailabilityEvent(book);
         
         log.info("Book {} returned by {}", book.getTitle(), user.getEmail());
         
@@ -218,5 +226,17 @@ public class BorrowServiceImpl implements BorrowService {
             return "\"" + field.replace("\"", "\"\"") + "\"";
         }
         return field;
+    }
+    
+    private void publishAvailabilityEvent(Book book) {
+        BookAvailabilityEvent event = BookAvailabilityEvent.builder()
+                .bookId(book.getId())
+                .title(book.getTitle())
+                .isbn(book.getIsbn())
+                .available(book.getAvailable())
+                .timestamp(LocalDateTime.now())
+                .build();
+                
+        bookAvailabilityService.publishAvailabilityEvent(event);
     }
 }
