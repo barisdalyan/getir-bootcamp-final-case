@@ -59,6 +59,11 @@ public class BorrowServiceImpl implements BorrowService {
                                            MAX_ACTIVE_LOANS + " active loans");
         }
         
+        // Check if user has any overdue books
+        if (borrowRecordRepository.hasOverdueBooks(user, LocalDateTime.now())) {
+            throw new BadRequestException("You have overdue books. Please return them before borrowing more books.");
+        }
+        
         // Find book by ID
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
