@@ -51,11 +51,19 @@ public class DataInitializer implements CommandLineRunner {
 
     private void createAdminUser() {
         User admin = new User();
-        admin.setName(adminUsername);
+        String[] nameParts = adminUsername.split(" ");
+        if (nameParts.length > 1) {
+            admin.setFirstName(nameParts[0]);
+            admin.setLastName(nameParts[1]);
+        } else {
+            admin.setFirstName(adminUsername);
+            admin.setLastName("Admin");
+        }
         admin.setEmail(adminEmail);
         admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRole(Role.LIBRARIAN);
         admin.setContactDetails("Library Administrator");
+        admin.setEnabled(true);
 
         userRepository.save(admin);
         log.info("Admin user created: {}", admin.getEmail());
@@ -64,9 +72,9 @@ public class DataInitializer implements CommandLineRunner {
     private void createSamplePatrons() {
         // Create sample patrons
         List<User> patrons = Arrays.asList(
-            createPatron("John Doe", "john@example.com", "password123", "123 Main St"),
-            createPatron("Jane Smith", "jane@example.com", "password456", "456 Oak Ave"),
-            createPatron("Bob Johnson", "bob@example.com", "password789", "789 Pine Blvd")
+            createPatron("John", "Doe", "john@example.com", "password123", "123 Main St"),
+            createPatron("Jane", "Smith", "jane@example.com", "password456", "456 Oak Ave"),
+            createPatron("Bob", "Johnson", "bob@example.com", "password789", "789 Pine Blvd")
         );
 
         userRepository.saveAll(patrons);
@@ -91,13 +99,15 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Created {} sample books", books.size());
     }
 
-    private User createPatron(String name, String email, String password, String contactDetails) {
+    private User createPatron(String firstName, String lastName, String email, String password, String contactDetails) {
         User patron = new User();
-        patron.setName(name);
+        patron.setFirstName(firstName);
+        patron.setLastName(lastName);
         patron.setEmail(email);
         patron.setPassword(passwordEncoder.encode(password));
         patron.setRole(Role.PATRON);
         patron.setContactDetails(contactDetails);
+        patron.setEnabled(true);
         return patron;
     }
     

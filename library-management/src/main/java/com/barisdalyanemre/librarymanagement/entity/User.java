@@ -15,7 +15,10 @@ import lombok.Setter;
 public class User extends BaseEntity {
 
     @Column(nullable = false)
-    private String name;
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -29,4 +32,7 @@ public class User extends BaseEntity {
 
     @Column(name = "contact_details")
     private String contactDetails;
+    
+    @Column(nullable = false)
+    private boolean enabled = true;
 }

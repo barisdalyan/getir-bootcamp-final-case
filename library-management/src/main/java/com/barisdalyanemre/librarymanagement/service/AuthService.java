@@ -39,11 +39,13 @@ public class AuthService {
 
         // Create new user with PATRON role by default
         User user = new User();
-        user.setName(request.getName());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.PATRON);
         user.setContactDetails(request.getContactDetails());
+        user.setEnabled(true); // New users are enabled by default
 
         User savedUser = userRepository.save(user);
         log.info("User registered successfully: {}", savedUser.getEmail());
@@ -54,7 +56,8 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwt)
                 .email(savedUser.getEmail())
-                .name(savedUser.getName())
+                .firstName(savedUser.getFirstName())
+                .lastName(savedUser.getLastName())
                 .role(savedUser.getRole().name())
                 .build();
     }
@@ -67,6 +70,11 @@ public class AuthService {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadRequestException("User not found with email: " + request.getEmail()));
+                
+        // Check if user account is enabled
+        if (!user.isEnabled()) {
+            throw new BadRequestException("Account is disabled. Please contact an administrator.");
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         String jwt = jwtUtils.generateToken(userDetails);
@@ -76,7 +84,8 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwt)
                 .email(user.getEmail())
-                .name(user.getName())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .role(user.getRole().name())
                 .build();
     }

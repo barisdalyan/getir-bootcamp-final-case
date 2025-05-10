@@ -10,10 +10,12 @@ import java.time.LocalDateTime;
 public class BorrowRecordMapper {
 
     public BorrowRecordDTO toDTO(BorrowRecord borrowRecord) {
+        String userName = borrowRecord.getUser().getFirstName() + " " + borrowRecord.getUser().getLastName();
+        
         return BorrowRecordDTO.builder()
                 .id(borrowRecord.getId())
                 .userId(borrowRecord.getUser().getId())
-                .userName(borrowRecord.getUser().getName())
+                .userName(userName)
                 .bookId(borrowRecord.getBook().getId())
                 .bookTitle(borrowRecord.getBook().getTitle())
                 .bookIsbn(borrowRecord.getBook().getIsbn())

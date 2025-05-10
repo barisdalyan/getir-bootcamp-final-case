@@ -47,6 +47,11 @@ public class BorrowServiceImpl implements BorrowService {
         // Get current authenticated user
         User user = getCurrentUser();
         
+        // Check if user account is enabled
+        if (!user.isEnabled()) {
+            throw new BadRequestException("Your account is disabled. Cannot borrow books.");
+        }
+        
         // Check if user has reached maximum allowed active loans
         long activeLoansCount = borrowRecordRepository.countByUserAndReturnDateIsNull(user);
         if (activeLoansCount >= MAX_ACTIVE_LOANS) {
@@ -94,6 +99,11 @@ public class BorrowServiceImpl implements BorrowService {
     public BorrowRecordDTO returnBook(Long bookId) {
         User user = getCurrentUser();
         
+        // Check if user account is enabled
+        if (!user.isEnabled()) {
+            throw new BadRequestException("Your account is disabled. Please contact an administrator.");
+        }
+        
         // Find book by ID
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
@@ -128,6 +138,11 @@ public class BorrowServiceImpl implements BorrowService {
     public List<BorrowRecordDTO> getCurrentUserBorrowHistory() {
         User user = getCurrentUser();
         
+        // Check if user account is enabled
+        if (!user.isEnabled()) {
+            throw new BadRequestException("Your account is disabled. Please contact an administrator.");
+        }
+        
         return borrowRecordRepository.findByUserOrderByBorrowDateDesc(user)
                 .stream()
                 .map(borrowRecordMapper::toDTO)
@@ -137,6 +152,11 @@ public class BorrowServiceImpl implements BorrowService {
     @Override
     public List<BorrowRecordDTO> getCurrentUserActiveLoans() {
         User user = getCurrentUser();
+        
+        // Check if user account is enabled
+        if (!user.isEnabled()) {
+            throw new BadRequestException("Your account is disabled. Please contact an administrator.");
+        }
         
         return borrowRecordRepository.findByUserAndReturnDateIsNullOrderByDueDateAsc(user)
                 .stream()
@@ -171,9 +191,10 @@ public class BorrowServiceImpl implements BorrowService {
         
         // Just log overdue books information
         for (BorrowRecord record : overdueRecords) {
-            log.info("Overdue book: '{}' borrowed by {}, due date was {}", 
+            log.info("Overdue book: '{}' borrowed by {} {}, due date was {}", 
                     record.getBook().getTitle(), 
-                    record.getUser().getEmail(),
+                    record.getUser().getFirstName(),
+                    record.getUser().getLastName(),
                     record.getDueDate());
         }
     }
@@ -188,7 +209,7 @@ public class BorrowServiceImpl implements BorrowService {
         
         StringBuilder csvContent = new StringBuilder();
         // Add CSV headers
-        csvContent.append("Book Title,ISBN,Patron Name,Patron Email,Borrow Date,Due Date,Days Overdue\n");
+        csvContent.append("Book Title,ISBN,Patron First Name,Patron Last Name,Patron Email,Borrow Date,Due Date,Days Overdue\n");
         
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime now = LocalDateTime.now();
@@ -196,7 +217,8 @@ public class BorrowServiceImpl implements BorrowService {
         for (BorrowRecord record : overdueRecords) {
             csvContent.append(escapeCsvField(record.getBook().getTitle())).append(",");
             csvContent.append(escapeCsvField(record.getBook().getIsbn())).append(",");
-            csvContent.append(escapeCsvField(record.getUser().getName())).append(",");
+            csvContent.append(escapeCsvField(record.getUser().getFirstName())).append(",");
+            csvContent.append(escapeCsvField(record.getUser().getLastName())).append(",");
             csvContent.append(escapeCsvField(record.getUser().getEmail())).append(",");
             csvContent.append(escapeCsvField(record.getBorrowDate().format(dateFormatter))).append(",");
             csvContent.append(escapeCsvField(record.getDueDate().format(dateFormatter))).append(",");
