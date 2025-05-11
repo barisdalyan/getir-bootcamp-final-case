@@ -36,7 +36,7 @@ public class BorrowController {
         return ResponseEntity.status(HttpStatus.CREATED).body(borrowRecord);
     }
 
-    @PostMapping("/return/{bookId}")
+    @PutMapping("/return/{bookId}")
     @Operation(summary = "Return a book", description = "Return a borrowed book by its ID. Users can only return books they've borrowed, while librarians can return any book.")
     public ResponseEntity<BorrowRecordDTO> returnBook(@PathVariable Long bookId) {
         log.info("Request to return book with ID: {}", bookId);

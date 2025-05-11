@@ -37,7 +37,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
     
-    @PostMapping("/promote/{id}")
+    @PutMapping("/promote/{id}")
     @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(
         summary = "Promote user to librarian", 
