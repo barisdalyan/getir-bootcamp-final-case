@@ -25,8 +25,11 @@ public class DataInitializer implements CommandLineRunner {
     private final BookRepository bookRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${ADMIN_USERNAME}")
-    private String adminUsername;
+    @Value("${ADMIN_FIRST_NAME}")
+    private String adminFirstName;
+
+    @Value("${ADMIN_LAST_NAME}")
+    private String adminLastName;
 
     @Value("${ADMIN_PASSWORD}")
     private String adminPassword;
@@ -51,14 +54,8 @@ public class DataInitializer implements CommandLineRunner {
 
     private void createAdminUser() {
         User admin = new User();
-        String[] nameParts = adminUsername.split(" ");
-        if (nameParts.length > 1) {
-            admin.setFirstName(nameParts[0]);
-            admin.setLastName(nameParts[1]);
-        } else {
-            admin.setFirstName(adminUsername);
-            admin.setLastName("Admin");
-        }
+        admin.setFirstName(adminFirstName);
+        admin.setLastName(adminLastName);
         admin.setEmail(adminEmail);
         admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRole(Role.LIBRARIAN);

@@ -55,7 +55,8 @@ public class EnvConfig {
             "POSTGRES_URL", 
             "POSTGRES_USER", 
             "POSTGRES_PASSWORD",
-            "ADMIN_USERNAME",
+            "ADMIN_FIRST_NAME",
+            "ADMIN_LAST_NAME",
             "ADMIN_PASSWORD",
             "ADMIN_EMAIL"
         };
