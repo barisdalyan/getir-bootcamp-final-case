@@ -58,7 +58,9 @@ public class EnvConfig {
             "ADMIN_FIRST_NAME",
             "ADMIN_LAST_NAME",
             "ADMIN_PASSWORD",
-            "ADMIN_EMAIL"
+            "ADMIN_EMAIL",
+            "JWT_SECRET",
+            "JWT_EXPIRATION"
         };
         
         for (String prop : requiredProps) {
