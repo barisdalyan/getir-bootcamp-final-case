@@ -15,10 +15,10 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration
 
-# JWT Configuration
+---
 jwt:
-  secret: ${JWT_SECRET:SGVsbG9UaGlzSXNNeVNpZ25pbmdTZWNyZXRGb3JMaWJyYXJ5TWFuYWdlbWVudEFwcGxpY2F0aW9u}
-  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
 
 ---
 spring:
@@ -26,9 +26,9 @@ spring:
     activate:
       on-profile: development
   datasource:
-    url: jdbc:h2:mem:librarydb
-    username: sa
-    password: password
+    url: ${H2_URL}
+    username: ${H2_USER}
+    password: ${H2_PASSWORD}
     driver-class-name: org.h2.Driver
   h2:
     console:
