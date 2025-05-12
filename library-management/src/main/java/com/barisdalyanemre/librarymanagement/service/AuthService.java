@@ -1,8 +1,8 @@
 package com.barisdalyanemre.librarymanagement.service;
 
-import com.barisdalyanemre.librarymanagement.dto.AuthResponse;
-import com.barisdalyanemre.librarymanagement.dto.LoginRequest;
-import com.barisdalyanemre.librarymanagement.dto.RegisterRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.LoginRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.RegisterRequest;
+import com.barisdalyanemre.librarymanagement.dto.response.AuthResponse;
 import com.barisdalyanemre.librarymanagement.entity.User;
 import com.barisdalyanemre.librarymanagement.enums.Role;
 import com.barisdalyanemre.librarymanagement.exception.BadRequestException;

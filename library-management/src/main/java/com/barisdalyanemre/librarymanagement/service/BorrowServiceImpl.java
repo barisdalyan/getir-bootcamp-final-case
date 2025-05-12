@@ -1,6 +1,6 @@
 package com.barisdalyanemre.librarymanagement.service;
 
-import com.barisdalyanemre.librarymanagement.dto.BorrowRecordDTO;
+import com.barisdalyanemre.librarymanagement.dto.response.BorrowRecordDTO;
 import com.barisdalyanemre.librarymanagement.entity.Book;
 import com.barisdalyanemre.librarymanagement.entity.BorrowRecord;
 import com.barisdalyanemre.librarymanagement.entity.User;

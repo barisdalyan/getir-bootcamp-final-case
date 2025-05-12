@@ -1,9 +1,9 @@
 package com.barisdalyanemre.librarymanagement.controller;
 
-import com.barisdalyanemre.librarymanagement.dto.BookDTO;
-import com.barisdalyanemre.librarymanagement.dto.BookSearchRequest;
-import com.barisdalyanemre.librarymanagement.dto.CreateBookRequest;
-import com.barisdalyanemre.librarymanagement.dto.UpdateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.BookSearchRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.CreateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.UpdateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.response.BookDTO;
 import com.barisdalyanemre.librarymanagement.service.BookService;
 
 import io.swagger.v3.oas.annotations.Operation;

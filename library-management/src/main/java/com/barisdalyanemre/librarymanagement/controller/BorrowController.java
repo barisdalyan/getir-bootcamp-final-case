@@ -1,6 +1,6 @@
 package com.barisdalyanemre.librarymanagement.controller;
 
-import com.barisdalyanemre.librarymanagement.dto.BorrowRecordDTO;
+import com.barisdalyanemre.librarymanagement.dto.response.BorrowRecordDTO;
 import com.barisdalyanemre.librarymanagement.service.BorrowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

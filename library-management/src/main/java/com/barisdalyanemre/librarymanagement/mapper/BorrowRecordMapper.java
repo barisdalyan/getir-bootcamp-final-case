@@ -1,6 +1,6 @@
 package com.barisdalyanemre.librarymanagement.mapper;
 
-import com.barisdalyanemre.librarymanagement.dto.BorrowRecordDTO;
+import com.barisdalyanemre.librarymanagement.dto.response.BorrowRecordDTO;
 import com.barisdalyanemre.librarymanagement.entity.BorrowRecord;
 import org.springframework.stereotype.Component;
 

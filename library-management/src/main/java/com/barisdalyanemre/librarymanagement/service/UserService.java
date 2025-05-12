@@ -1,7 +1,7 @@
 package com.barisdalyanemre.librarymanagement.service;
 
-import com.barisdalyanemre.librarymanagement.dto.UpdateUserRequest;
-import com.barisdalyanemre.librarymanagement.dto.UserDTO;
+import com.barisdalyanemre.librarymanagement.dto.request.UpdateUserRequest;
+import com.barisdalyanemre.librarymanagement.dto.response.UserDTO;
 import com.barisdalyanemre.librarymanagement.enums.Role;
 import com.barisdalyanemre.librarymanagement.entity.User;
 import com.barisdalyanemre.librarymanagement.exception.BadRequestException;

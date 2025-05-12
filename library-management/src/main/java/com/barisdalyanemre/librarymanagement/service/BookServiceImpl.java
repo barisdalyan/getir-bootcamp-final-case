@@ -1,9 +1,9 @@
 package com.barisdalyanemre.librarymanagement.service;
 
-import com.barisdalyanemre.librarymanagement.dto.BookDTO;
-import com.barisdalyanemre.librarymanagement.dto.BookSearchRequest;
-import com.barisdalyanemre.librarymanagement.dto.CreateBookRequest;
-import com.barisdalyanemre.librarymanagement.dto.UpdateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.BookSearchRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.CreateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.UpdateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.response.BookDTO;
 import com.barisdalyanemre.librarymanagement.entity.Book;
 import com.barisdalyanemre.librarymanagement.event.BookAvailabilityEvent;
 import com.barisdalyanemre.librarymanagement.exception.BadRequestException;

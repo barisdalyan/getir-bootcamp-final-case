@@ -1,8 +1,8 @@
 package com.barisdalyanemre.librarymanagement.mapper;
 
-import com.barisdalyanemre.librarymanagement.dto.BookDTO;
-import com.barisdalyanemre.librarymanagement.dto.CreateBookRequest;
-import com.barisdalyanemre.librarymanagement.dto.UpdateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.CreateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.request.UpdateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.response.BookDTO;
 import com.barisdalyanemre.librarymanagement.entity.Book;
 import org.springframework.stereotype.Component;
 

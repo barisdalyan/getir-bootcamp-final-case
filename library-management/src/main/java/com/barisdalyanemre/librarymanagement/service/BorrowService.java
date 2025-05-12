@@ -1,7 +1,8 @@
 package com.barisdalyanemre.librarymanagement.service;
 
-import com.barisdalyanemre.librarymanagement.dto.BorrowRecordDTO;
 import java.util.List;
+
+import com.barisdalyanemre.librarymanagement.dto.response.BorrowRecordDTO;
 
 public interface BorrowService {
 
