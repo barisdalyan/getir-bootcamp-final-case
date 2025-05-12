@@ -74,7 +74,7 @@ public class UserService {
 
     private User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
     
     private void validateUserAccess(User user) {
@@ -89,7 +89,7 @@ public class UserService {
         
         // If not a librarian, users can only access their own data
         if (!user.getEmail().equals(currentUserEmail)) {
-            throw new ForbiddenException("Access denied to user data");
+            throw new ForbiddenException("Access denied: You can only access your own user data");
         }
     }
 }

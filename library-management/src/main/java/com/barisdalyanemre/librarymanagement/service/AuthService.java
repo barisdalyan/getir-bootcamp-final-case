@@ -69,7 +69,7 @@ public class AuthService {
         );
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadRequestException("User not found with email: " + request.getEmail()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
                 
         // Check if user account is enabled
         if (!user.isEnabled()) {
@@ -93,7 +93,7 @@ public class AuthService {
     @Transactional
     public void promoteToLibrarian(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         
         if (user.getRole() == Role.LIBRARIAN) {
             throw new BadRequestException("User is already a librarian");

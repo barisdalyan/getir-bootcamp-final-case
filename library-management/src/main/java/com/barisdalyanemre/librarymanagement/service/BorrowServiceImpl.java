@@ -6,6 +6,8 @@ import com.barisdalyanemre.librarymanagement.entity.BorrowRecord;
 import com.barisdalyanemre.librarymanagement.entity.User;
 import com.barisdalyanemre.librarymanagement.event.BookAvailabilityEvent;
 import com.barisdalyanemre.librarymanagement.exception.BadRequestException;
+import com.barisdalyanemre.librarymanagement.exception.ConflictException;
+import com.barisdalyanemre.librarymanagement.exception.ForbiddenException;
 import com.barisdalyanemre.librarymanagement.exception.ResourceNotFoundException;
 import com.barisdalyanemre.librarymanagement.mapper.BorrowRecordMapper;
 import com.barisdalyanemre.librarymanagement.repository.BookRepository;
@@ -66,16 +68,16 @@ public class BorrowServiceImpl implements BorrowService {
         
         // Find book by ID
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
         
         // Check if book is available
         if (!book.getAvailable()) {
-            throw new BadRequestException("Book is not available for borrowing");
+            throw new ConflictException("Book is not available for borrowing");
         }
         
         // Check if user already has an active loan for this book
         if (borrowRecordRepository.existsByUserAndBookAndReturnDateIsNull(user, book)) {
-            throw new BadRequestException("You already have an active loan for this book");
+            throw new ConflictException("You already have an active loan for this book");
         }
         
         // Create new borrow record
@@ -111,16 +113,16 @@ public class BorrowServiceImpl implements BorrowService {
         
         // Find book by ID
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
         
         // Find active borrow record for this book
         BorrowRecord borrowRecord = borrowRecordRepository.findByBookAndReturnDateIsNull(book)
-                .orElseThrow(() -> new BadRequestException("No active loan found for this book"));
+                .orElseThrow(() -> new ResourceNotFoundException("No active loan found for book with id: " + bookId));
         
         // Ensure the user returning the book is the one who borrowed it or is a librarian
         if (!borrowRecord.getUser().getId().equals(user.getId()) && 
             !user.getRole().name().equals("LIBRARIAN")) {
-            throw new BadRequestException("You can only return books that you borrowed");
+            throw new ForbiddenException("You can only return books that you borrowed");
         }
         
         // Update borrow record
@@ -145,7 +147,7 @@ public class BorrowServiceImpl implements BorrowService {
         
         // Check if user account is enabled
         if (!user.isEnabled()) {
-            throw new BadRequestException("Your account is disabled. Please contact an administrator.");
+            throw new ForbiddenException("Your account is disabled. Please contact an administrator.");
         }
         
         return borrowRecordRepository.findByUserOrderByBorrowDateDesc(user)
@@ -160,7 +162,7 @@ public class BorrowServiceImpl implements BorrowService {
         
         // Check if user account is enabled
         if (!user.isEnabled()) {
-            throw new BadRequestException("Your account is disabled. Please contact an administrator.");
+            throw new ForbiddenException("Your account is disabled. Please contact an administrator.");
         }
         
         return borrowRecordRepository.findByUserAndReturnDateIsNullOrderByDueDateAsc(user)
@@ -241,7 +243,7 @@ public class BorrowServiceImpl implements BorrowService {
         String email = authentication.getName();
         
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
     
     private String escapeCsvField(String field) {

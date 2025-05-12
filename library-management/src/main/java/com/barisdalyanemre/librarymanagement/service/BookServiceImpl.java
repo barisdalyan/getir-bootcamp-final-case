@@ -58,7 +58,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDTO getBookByIsbn(String isbn) {
         Book book = bookRepository.findByIsbn(isbn)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "isbn", isbn));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with isbn: " + isbn));
         return bookMapper.toDTO(book);
     }
 
@@ -129,7 +129,7 @@ public class BookServiceImpl implements BookService {
     
     private Book findBookById(Long id) {
         return bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
     }
     
     private void publishAvailabilityEvent(Book book) {
