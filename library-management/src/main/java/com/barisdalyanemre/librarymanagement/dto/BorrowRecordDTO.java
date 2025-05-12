@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 public class BorrowRecordDTO {
     private Long id;
     private Long userId;
-    private String userName;
+    private String firstName;
+    private String lastName;
+    private String email;
     private Long bookId;
     private String bookTitle;
     private String bookIsbn;
