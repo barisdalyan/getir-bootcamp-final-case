@@ -1,5 +1,6 @@
 package com.barisdalyanemre.librarymanagement.entity;
 
+import com.barisdalyanemre.librarymanagement.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

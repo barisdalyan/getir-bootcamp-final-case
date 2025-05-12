@@ -1,6 +1,6 @@
 package com.barisdalyanemre.librarymanagement.dto;
 
-import com.barisdalyanemre.librarymanagement.entity.Role;
+import com.barisdalyanemre.librarymanagement.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

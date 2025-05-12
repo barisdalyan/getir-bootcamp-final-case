@@ -2,7 +2,7 @@ package com.barisdalyanemre.librarymanagement.bootstrap;
 
 import com.barisdalyanemre.librarymanagement.entity.Book;
 import com.barisdalyanemre.librarymanagement.entity.BorrowRecord;
-import com.barisdalyanemre.librarymanagement.entity.Role;
+import com.barisdalyanemre.librarymanagement.enums.Role;
 import com.barisdalyanemre.librarymanagement.entity.User;
 import com.barisdalyanemre.librarymanagement.repository.BookRepository;
 import com.barisdalyanemre.librarymanagement.repository.BorrowRecordRepository;
