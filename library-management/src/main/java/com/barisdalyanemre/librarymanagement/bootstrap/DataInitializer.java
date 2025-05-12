@@ -1,9 +1,11 @@
 package com.barisdalyanemre.librarymanagement.bootstrap;
 
 import com.barisdalyanemre.librarymanagement.entity.Book;
+import com.barisdalyanemre.librarymanagement.entity.BorrowRecord;
 import com.barisdalyanemre.librarymanagement.entity.Role;
 import com.barisdalyanemre.librarymanagement.entity.User;
 import com.barisdalyanemre.librarymanagement.repository.BookRepository;
+import com.barisdalyanemre.librarymanagement.repository.BorrowRecordRepository;
 import com.barisdalyanemre.librarymanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +27,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final BorrowRecordRepository borrowRecordRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${ADMIN_FIRST_NAME}")
@@ -46,6 +51,7 @@ public class DataInitializer implements CommandLineRunner {
             createAdminUser();
             createSamplePatrons();
             createSampleBooks();
+            createSampleBorrowRecords();
             log.info("Sample data created successfully");
         } else {
             log.info("Database already contains data, skipping initialization");
@@ -94,6 +100,94 @@ public class DataInitializer implements CommandLineRunner {
         
         bookRepository.saveAll(books);
         log.info("Created {} sample books", books.size());
+    }
+
+    private void createSampleBorrowRecords() {
+        List<User> users = userRepository.findAll();
+        List<Book> books = bookRepository.findAll();
+        List<BorrowRecord> borrowRecords = new ArrayList<>();
+        
+        if (users.size() < 3 || books.size() < 5) {
+            log.warn("Not enough users or books to create sample borrow records");
+            return;
+        }
+        
+        // Get users by index assuming we have at least 3 patrons from createSamplePatrons()
+        User user1 = users.stream()
+                .filter(user -> user.getEmail().equals("john@example.com"))
+                .findFirst()
+                .orElse(users.get(1));
+        
+        User user2 = users.stream()
+                .filter(user -> user.getEmail().equals("jane@example.com"))
+                .findFirst()
+                .orElse(users.get(2));
+                
+        User user3 = users.stream()
+                .filter(user -> user.getEmail().equals("bob@example.com"))
+                .findFirst()
+                .orElse(users.get(3));
+        
+        // Currently borrowed, not overdue
+        BorrowRecord record1 = new BorrowRecord();
+        record1.setUser(user1);
+        record1.setBook(books.get(0));  // To Kill a Mockingbird
+        record1.setBorrowDate(LocalDateTime.now().minusDays(5));
+        record1.setDueDate(LocalDateTime.now().plusDays(9)); // Due in 9 days
+        record1.setReturnDate(null); // Not returned yet
+        borrowRecords.add(record1);
+        
+        // Set book as not available since it's borrowed
+        books.get(0).setAvailable(false);
+        
+        // Currently borrowed, overdue
+        BorrowRecord record2 = new BorrowRecord();
+        record2.setUser(user1);
+        record2.setBook(books.get(1)); // 1984
+        record2.setBorrowDate(LocalDateTime.now().minusDays(20));
+        record2.setDueDate(LocalDateTime.now().minusDays(6)); // Overdue by 6 days
+        record2.setReturnDate(null); // Not returned yet
+        borrowRecords.add(record2);
+        
+        // Set book as not available since it's borrowed
+        books.get(1).setAvailable(false);
+        
+        // Another overdue book
+        BorrowRecord record3 = new BorrowRecord();
+        record3.setUser(user2);
+        record3.setBook(books.get(2)); // The Great Gatsby
+        record3.setBorrowDate(LocalDateTime.now().minusDays(30));
+        record3.setDueDate(LocalDateTime.now().minusDays(16)); // Overdue by 16 days
+        record3.setReturnDate(null); // Not returned yet
+        borrowRecords.add(record3);
+        
+        // Set book as not available since it's borrowed
+        books.get(2).setAvailable(false);
+        
+        // Returned book (on time)
+        BorrowRecord record4 = new BorrowRecord();
+        record4.setUser(user2);
+        record4.setBook(books.get(3)); // Pride and Prejudice
+        record4.setBorrowDate(LocalDateTime.now().minusDays(25));
+        record4.setDueDate(LocalDateTime.now().minusDays(11));
+        record4.setReturnDate(LocalDateTime.now().minusDays(12)); // Returned 1 day before due
+        borrowRecords.add(record4);
+        
+        // Returned book (late)
+        BorrowRecord record5 = new BorrowRecord();
+        record5.setUser(user3);
+        record5.setBook(books.get(4)); // The Catcher in the Rye
+        record5.setBorrowDate(LocalDateTime.now().minusDays(35));
+        record5.setDueDate(LocalDateTime.now().minusDays(21));
+        record5.setReturnDate(LocalDateTime.now().minusDays(15)); // Returned 6 days after due
+        borrowRecords.add(record5);
+        
+        // Save updated books
+        bookRepository.saveAll(books);
+        
+        // Save borrow records
+        borrowRecordRepository.saveAll(borrowRecords);
+        log.info("Created {} sample borrow records", borrowRecords.size());
     }
 
     private User createPatron(String firstName, String lastName, String email, String password, String contactDetails) {
