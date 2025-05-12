@@ -26,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Book Management", description = "APIs for managing books")

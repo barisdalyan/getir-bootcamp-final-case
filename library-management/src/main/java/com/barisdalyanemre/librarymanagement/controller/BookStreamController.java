@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Book Streaming", description = "APIs for streaming real-time book availability updates")

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/borrow")
+@RequestMapping("/api/v1/borrow")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Book Borrowing", description = "APIs for borrowing and returning books")
