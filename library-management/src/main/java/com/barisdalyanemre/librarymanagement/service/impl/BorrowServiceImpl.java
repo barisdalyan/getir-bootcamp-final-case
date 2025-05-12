@@ -1,4 +1,4 @@
-package com.barisdalyanemre.librarymanagement.service;
+package com.barisdalyanemre.librarymanagement.service.impl;
 
 import com.barisdalyanemre.librarymanagement.dto.response.BorrowRecordDTO;
 import com.barisdalyanemre.librarymanagement.entity.Book;
@@ -13,6 +13,9 @@ import com.barisdalyanemre.librarymanagement.mapper.BorrowRecordMapper;
 import com.barisdalyanemre.librarymanagement.repository.BookRepository;
 import com.barisdalyanemre.librarymanagement.repository.BorrowRecordRepository;
 import com.barisdalyanemre.librarymanagement.repository.UserRepository;
+import com.barisdalyanemre.librarymanagement.service.BookAvailabilityService;
+import com.barisdalyanemre.librarymanagement.service.BorrowService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

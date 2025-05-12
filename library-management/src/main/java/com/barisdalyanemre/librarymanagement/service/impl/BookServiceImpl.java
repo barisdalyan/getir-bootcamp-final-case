@@ -1,4 +1,4 @@
-package com.barisdalyanemre.librarymanagement.service;
+package com.barisdalyanemre.librarymanagement.service.impl;
 
 import com.barisdalyanemre.librarymanagement.dto.request.BookSearchRequest;
 import com.barisdalyanemre.librarymanagement.dto.request.CreateBookRequest;
@@ -10,6 +10,8 @@ import com.barisdalyanemre.librarymanagement.exception.BadRequestException;
 import com.barisdalyanemre.librarymanagement.exception.ResourceNotFoundException;
 import com.barisdalyanemre.librarymanagement.mapper.BookMapper;
 import com.barisdalyanemre.librarymanagement.repository.BookRepository;
+import com.barisdalyanemre.librarymanagement.service.BookAvailabilityService;
+import com.barisdalyanemre.librarymanagement.service.BookService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

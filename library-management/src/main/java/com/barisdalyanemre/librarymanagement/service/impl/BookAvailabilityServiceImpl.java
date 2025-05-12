@@ -1,6 +1,8 @@
-package com.barisdalyanemre.librarymanagement.service;
+package com.barisdalyanemre.librarymanagement.service.impl;
 
 import com.barisdalyanemre.librarymanagement.event.BookAvailabilityEvent;
+import com.barisdalyanemre.librarymanagement.service.BookAvailabilityService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
