@@ -104,7 +104,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
         log.error("Constraint violation: {}", ex.getMessage());
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Validation errors", ex);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Validation error", ex);
         apiError.setPath(getRequestPath(request));
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
@@ -153,10 +153,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
         
         log.error("Validation error: {}", ex.getMessage());
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Validation errors", ex);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Validation error", ex);
         apiError.setPath(getRequestPath(request));
-        apiError.addValidationErrors(ex);
-        
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
