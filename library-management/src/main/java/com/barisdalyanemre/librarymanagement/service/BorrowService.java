@@ -56,9 +56,9 @@ public interface BorrowService {
     void processOverdueBooks();
     
     /**
-     * Generate a report of all overdue books in CSV format
+     * Generate a text report of all overdue books
      * 
-     * @return CSV data as byte array
+     * @return Formatted text report of overdue books
      */
-    byte[] generateOverdueReportCsv();
+    String generateOverdueReportText();
 }

@@ -207,35 +207,81 @@ public class BorrowServiceImpl implements BorrowService {
     }
     
     @Override
-    public byte[] generateOverdueReportCsv() {
+    public String generateOverdueReportText() {
         List<BorrowRecord> overdueRecords = borrowRecordRepository.findAllOverdue(LocalDateTime.now());
         
         if (overdueRecords.isEmpty()) {
-            return "No overdue books found".getBytes();
+            return "LIBRARY OVERDUE BOOKS REPORT\n" +
+                   "--------------------------\n" +
+                   "No overdue books found\n\n" +
+                   "Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
         
-        StringBuilder csvContent = new StringBuilder();
-        // Add CSV headers
-        csvContent.append("Book Title,ISBN,Patron First Name,Patron Last Name,Patron Email,Borrow Date,Due Date,Days Overdue\n");
+        // Count books by days overdue
+        LocalDateTime now = LocalDateTime.now();
+        long lessThan7Days = overdueRecords.stream()
+                .filter(r -> java.time.temporal.ChronoUnit.DAYS.between(r.getDueDate(), now) < 7)
+                .count();
+        long between7And14Days = overdueRecords.stream()
+                .filter(r -> {
+                    long days = java.time.temporal.ChronoUnit.DAYS.between(r.getDueDate(), now);
+                    return days >= 7 && days < 14;
+                })
+                .count();
+        long between14And30Days = overdueRecords.stream()
+                .filter(r -> {
+                    long days = java.time.temporal.ChronoUnit.DAYS.between(r.getDueDate(), now);
+                    return days >= 14 && days < 30;
+                })
+                .count();
+        long moreThan30Days = overdueRecords.stream()
+                .filter(r -> java.time.temporal.ChronoUnit.DAYS.between(r.getDueDate(), now) >= 30)
+                .count();
+        
+        // Get unique patrons with overdue books
+        long uniquePatronsCount = overdueRecords.stream()
+                .map(record -> record.getUser().getId())
+                .distinct()
+                .count();
+        
+        // Build the summary section
+        StringBuilder report = new StringBuilder();
+        report.append("LIBRARY OVERDUE BOOKS REPORT\n");
+        report.append("--------------------------\n");
+        report.append("Total Overdue Books: ").append(overdueRecords.size()).append('\n');
+        report.append("Unique Patrons with Overdue Books: ").append(uniquePatronsCount).append('\n');
+        report.append('\n');
+        report.append("OVERDUE BREAKDOWN:\n");
+        report.append("< 7 days overdue: ").append(lessThan7Days).append('\n');
+        report.append("7-14 days overdue: ").append(between7And14Days).append('\n');
+        report.append("14-30 days overdue: ").append(between14And30Days).append('\n');
+        report.append("> 30 days overdue: ").append(moreThan30Days).append('\n');
+        report.append('\n');
+        
+        // Add detailed overdue records section
+        report.append("DETAILED OVERDUE RECORDS:\n");
+        report.append("-----------------------\n");
         
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime now = LocalDateTime.now();
         
+        int recordCount = 1;
         for (BorrowRecord record : overdueRecords) {
-            csvContent.append(escapeCsvField(record.getBook().getTitle())).append(",");
-            csvContent.append(escapeCsvField(record.getBook().getIsbn())).append(",");
-            csvContent.append(escapeCsvField(record.getUser().getFirstName())).append(",");
-            csvContent.append(escapeCsvField(record.getUser().getLastName())).append(",");
-            csvContent.append(escapeCsvField(record.getUser().getEmail())).append(",");
-            csvContent.append(escapeCsvField(record.getBorrowDate().format(dateFormatter))).append(",");
-            csvContent.append(escapeCsvField(record.getDueDate().format(dateFormatter))).append(",");
-            
-            // Calculate days overdue
             long daysOverdue = java.time.temporal.ChronoUnit.DAYS.between(record.getDueDate(), now);
-            csvContent.append(daysOverdue).append("\n");
+            
+            report.append(recordCount++).append(". ");
+            report.append("Book: \"").append(record.getBook().getTitle()).append("\" (ISBN: ").append(record.getBook().getIsbn()).append(")\n");
+            report.append("   Author: ").append(record.getBook().getAuthor()).append('\n');
+            report.append("   Patron: ").append(record.getUser().getFirstName()).append(" ").append(record.getUser().getLastName());
+            report.append(" (").append(record.getUser().getEmail()).append(")\n");
+            report.append("   Borrowed: ").append(record.getBorrowDate().format(dateFormatter)).append('\n');
+            report.append("   Due: ").append(record.getDueDate().format(dateFormatter)).append('\n');
+            report.append("   Days Overdue: ").append(daysOverdue).append('\n');
+            report.append("\n");
         }
         
-        return csvContent.toString().getBytes();
+        report.append("\nGenerated: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        
+        return report.toString();
     }
     
     private User getCurrentUser() {
@@ -244,17 +290,6 @@ public class BorrowServiceImpl implements BorrowService {
         
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-    }
-    
-    private String escapeCsvField(String field) {
-        if (field == null) {
-            return "";
-        }
-        // If the field contains commas, quotes, or newlines, wrap it in quotes and escape any quotes
-        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
-            return "\"" + field.replace("\"", "\"\"") + "\"";
-        }
-        return field;
     }
     
     private void publishAvailabilityEvent(Book book) {

@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -74,25 +72,19 @@ public class BorrowController {
         return ResponseEntity.ok(borrowService.getAllOverdueRecords());
     }
 
-    @GetMapping("/overdue/download")
+    @GetMapping("/overdue/report")
     @PreAuthorize("hasRole('LIBRARIAN')")
-    @Operation(summary = "Download overdue books report as CSV", description = "Download a CSV report of all overdue books. Only accessible by librarians.")
-    public ResponseEntity<byte[]> downloadOverdueReport() {
-        log.info("Request to download overdue books report as CSV");
+    @Operation(summary = "Get overdue books report as text", description = "Get a formatted text report of all overdue books. Only accessible by librarians.")
+    public ResponseEntity<String> getOverdueReport() {
+        log.info("Request to get overdue books report as text");
         
-        byte[] csvContent = borrowService.generateOverdueReportCsv();
-        
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String filename = "overdue_books_" + timestamp + ".csv";
+        String reportText = borrowService.generateOverdueReportText();
         
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("text/csv"));
-        headers.setContentDispositionFormData("attachment", filename);
-        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        headers.setContentType(MediaType.TEXT_PLAIN);
         
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(csvContent.length)
-                .body(csvContent);
+                .body(reportText);
     }
 }
