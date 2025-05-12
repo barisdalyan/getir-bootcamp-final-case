@@ -1,6 +1,8 @@
 package com.barisdalyanemre.librarymanagement.repository;
 
 import com.barisdalyanemre.librarymanagement.entity.Book;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,11 +28,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
            "AND (:available IS NULL OR b.available = :available) " +
            "AND (:publishedAfter IS NULL OR b.publicationDate >= :publishedAfter) " +
            "AND (:publishedBefore IS NULL OR b.publicationDate <= :publishedBefore)")
-    List<Book> searchBooks(
+    Page<Book> searchBooks(
             @Param("title") String title,
             @Param("author") String author, 
             @Param("genre") String genre,
             @Param("available") Boolean available,
             @Param("publishedAfter") LocalDate publishedAfter,
-            @Param("publishedBefore") LocalDate publishedBefore);
+            @Param("publishedBefore") LocalDate publishedBefore,
+            Pageable pageable);
 }

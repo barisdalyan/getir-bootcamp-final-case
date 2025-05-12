@@ -8,8 +8,6 @@ import com.barisdalyanemre.librarymanagement.dto.UpdateBookRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface BookService {
 
     /**
@@ -41,11 +39,12 @@ public interface BookService {
     Page<BookDTO> getAllBooks(Pageable pageable);
     
     /**
-     * Searches for books based on various criteria
+     * Searches for books based on various criteria with pagination
      * @param request the search criteria
-     * @return list of books matching criteria
+     * @param pageable pagination information
+     * @return paginated results of books matching criteria
      */
-    List<BookDTO> searchBooks(BookSearchRequest request);
+    Page<BookDTO> searchBooks(BookSearchRequest request, Pageable pageable);
     
     /**
      * Updates a book

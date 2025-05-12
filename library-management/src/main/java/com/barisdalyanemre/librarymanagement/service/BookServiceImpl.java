@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,19 +65,18 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findAll(pageable)
                 .map(bookMapper::toDTO);
     }
-
+    
     @Override
-    public List<BookDTO> searchBooks(BookSearchRequest request) {
+    public Page<BookDTO> searchBooks(BookSearchRequest request, Pageable pageable) {
         return bookRepository.searchBooks(
                 request.getTitle(),
                 request.getAuthor(),
                 request.getGenre(),
                 request.getAvailable(),
                 request.getPublishedAfter(),
-                request.getPublishedBefore()
-            ).stream()
-            .map(bookMapper::toDTO)
-            .collect(Collectors.toList());
+                request.getPublishedBefore(),
+                pageable
+            ).map(bookMapper::toDTO);
     }
 
     @Override
@@ -119,7 +116,7 @@ public class BookServiceImpl implements BookService {
         if (book.getAvailable() != available) {
             book.setAvailable(available);
             Book updatedBook = bookRepository.save(book);
-            log.info("Updated availability for book with ID: {} to {}", id, available);
+            log.info("Updated availability for book ID: {} to {}", id, available);
             
             publishAvailabilityEvent(updatedBook);
         }

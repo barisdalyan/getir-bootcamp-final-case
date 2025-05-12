@@ -25,8 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
@@ -80,19 +78,23 @@ public class BookController {
 
     @GetMapping("/search")
     @Operation(
-        summary = "Search books", 
-        description = "Search for books based on various criteria like title, author, genre, availability, and publication date range"
+        summary = "Search books with pagination", 
+        description = "Search for books based on various criteria like title, author, genre, availability, and publication date range with pagination support"
     )
-    public ResponseEntity<List<BookDTO>> searchBooks(
+    public ResponseEntity<Page<BookDTO>> searchBooks(
             @Parameter(description = "Title (partial match)") @RequestParam(required = false) String title,
             @Parameter(description = "Author (partial match)") @RequestParam(required = false) String author,
             @Parameter(description = "Genre (partial match)") @RequestParam(required = false) String genre,
             @Parameter(description = "Availability status") @RequestParam(required = false) Boolean available,
             @Parameter(description = "Published after date (YYYY-MM-DD)") @RequestParam(required = false) String publishedAfter,
-            @Parameter(description = "Published before date (YYYY-MM-DD)") @RequestParam(required = false) String publishedBefore
+            @Parameter(description = "Published before date (YYYY-MM-DD)") @RequestParam(required = false) String publishedBefore,
+            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "id") String sortBy,
+            @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "asc") String sortDir
     ) {
-        log.info("Request to search books with criteria: title={}, author={}, genre={}, available={}", 
-                title, author, genre, available);
+        log.info("Request to search books with criteria: title={}, author={}, genre={}, available={}, page={}, size={}", 
+                title, author, genre, available, page, size);
                 
         BookSearchRequest searchRequest = BookSearchRequest.builder()
                 .title(title)
@@ -109,7 +111,11 @@ public class BookController {
             searchRequest.setPublishedBefore(java.time.LocalDate.parse(publishedBefore));
         }
         
-        return ResponseEntity.ok(bookService.searchBooks(searchRequest));
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? 
+                Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        return ResponseEntity.ok(bookService.searchBooks(searchRequest, pageable));
     }
 
     @PutMapping("/{id}")
