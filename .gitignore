@@ -7,3 +7,8 @@
 
 # Environment files
 **/.env
+
+# Log files
+*.log
+logs/
+.logs/
