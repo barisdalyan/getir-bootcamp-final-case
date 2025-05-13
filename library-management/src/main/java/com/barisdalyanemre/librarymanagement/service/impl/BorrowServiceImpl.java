@@ -90,6 +90,9 @@ public class BorrowServiceImpl implements BorrowService {
         borrowRecord.setBorrowDate(LocalDateTime.now());
         borrowRecord.setDueDate(LocalDateTime.now().plusDays(DEFAULT_LOAN_PERIOD_DAYS));
         
+        // Validate dates
+        validateBorrowRecordDates(borrowRecord);
+        
         // Update book availability
         book.setAvailable(false);
         bookRepository.save(book);
@@ -130,6 +133,10 @@ public class BorrowServiceImpl implements BorrowService {
         
         // Update borrow record
         borrowRecord.setReturnDate(LocalDateTime.now());
+        
+        // Validate dates
+        validateBorrowRecordDates(borrowRecord);
+        
         borrowRecordRepository.save(borrowRecord);
         
         // Update book availability
@@ -305,5 +312,21 @@ public class BorrowServiceImpl implements BorrowService {
                 .build();
                 
         bookAvailabilityService.publishAvailabilityEvent(event);
+    }
+
+    private void validateBorrowRecordDates(BorrowRecord borrowRecord) {
+        // Validate due date is after borrow date
+        if (borrowRecord.getBorrowDate() != null && borrowRecord.getDueDate() != null) {
+            if (borrowRecord.getDueDate().isBefore(borrowRecord.getBorrowDate())) {
+                throw new IllegalArgumentException("Due date must be after or equal to borrow date");
+            }
+        }
+        
+        // Validate return date is after borrow date (if return date exists)
+        if (borrowRecord.getReturnDate() != null && borrowRecord.getBorrowDate() != null) {
+            if (borrowRecord.getReturnDate().isBefore(borrowRecord.getBorrowDate())) {
+                throw new IllegalArgumentException("Return date must be after or equal to borrow date");
+            }
+        }
     }
 }
