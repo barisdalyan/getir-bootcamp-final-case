@@ -19,6 +19,16 @@ spring:
       add-mappings: false
 
 ---
+logging:
+  level:
+    root: INFO
+    com.barisdalyanemre.librarymanagement: INFO
+    org.springframework: INFO
+    org.hibernate: WARN
+  file:
+    name: logs/application.log
+
+---
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
