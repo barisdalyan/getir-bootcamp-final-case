@@ -136,7 +136,6 @@ public class BookController {
                 .available(available)
                 .build();
                 
-        // Parse dates if provided
         if (publishedAfter != null) {
             searchRequest.setPublishedAfter(java.time.LocalDate.parse(publishedAfter));
         }

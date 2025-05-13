@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public List<UserDTO> getAllUsers() {
-        // Only librarians can access this method (secured by @PreAuthorize in the controller)
         return userRepository.findAll().stream()
                 .map(userMapper::toDTO)
                 .collect(Collectors.toList());
@@ -50,7 +49,6 @@ public class UserServiceImpl implements UserService {
         User user = findUserById(id);
         validateUserAccess(user);
         
-        // Check if email is already taken by another user
         if (!user.getEmail().equals(updateRequest.getEmail()) && 
             userRepository.existsByEmail(updateRequest.getEmail())) {
             throw new BadRequestException("Email is already taken");

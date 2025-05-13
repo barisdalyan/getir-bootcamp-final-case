@@ -40,67 +40,53 @@ public class BorrowServiceImpl implements BorrowService {
     private final BorrowRecordMapper borrowRecordMapper;
     private final BookAvailabilityService bookAvailabilityService;
     
-    // Default loan period in days
     private static final int DEFAULT_LOAN_PERIOD_DAYS = 14;
     
-    // Maximum active loans per user
     private static final int MAX_ACTIVE_LOANS = 5;
 
     @Override
     @Transactional
     public BorrowRecordDTO borrowBook(Long bookId) {
-        // Get current authenticated user
         User user = getCurrentUser();
         
-        // Check if user account is enabled
         if (!user.isEnabled()) {
             throw new BadRequestException("Your account is disabled. Cannot borrow books.");
         }
         
-        // Check if user has reached maximum allowed active loans
         long activeLoansCount = borrowRecordRepository.countByUserAndReturnDateIsNull(user);
         if (activeLoansCount >= MAX_ACTIVE_LOANS) {
             throw new BadRequestException("You have reached the maximum limit of " + 
                                            MAX_ACTIVE_LOANS + " active loans");
         }
         
-        // Check if user has any overdue books
         if (borrowRecordRepository.hasOverdueBooks(user, LocalDateTime.now())) {
             throw new BadRequestException("You have overdue books. Please return them before borrowing more books.");
         }
         
-        // Find book by ID
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
         
-        // Check if book is available
         if (!book.getAvailable()) {
             throw new ConflictException("Book is not available for borrowing");
         }
         
-        // Check if user already has an active loan for this book
         if (borrowRecordRepository.existsByUserAndBookAndReturnDateIsNull(user, book)) {
             throw new ConflictException("You already have an active loan for this book");
         }
         
-        // Create new borrow record
         BorrowRecord borrowRecord = new BorrowRecord();
         borrowRecord.setUser(user);
         borrowRecord.setBook(book);
         borrowRecord.setBorrowDate(LocalDateTime.now());
         borrowRecord.setDueDate(LocalDateTime.now().plusDays(DEFAULT_LOAN_PERIOD_DAYS));
         
-        // Validate dates
         validateBorrowRecordDates(borrowRecord);
         
-        // Update book availability
         book.setAvailable(false);
         bookRepository.save(book);
         
-        // Publish book availability event
         publishAvailabilityEvent(book);
         
-        // Save borrow record
         BorrowRecord savedRecord = borrowRecordRepository.save(borrowRecord);
         log.info("User {} borrowed book {}", user.getEmail(), book.getTitle());
         
@@ -112,38 +98,30 @@ public class BorrowServiceImpl implements BorrowService {
     public BorrowRecordDTO returnBook(Long bookId) {
         User user = getCurrentUser();
         
-        // Check if user account is enabled
         if (!user.isEnabled()) {
             throw new BadRequestException("Your account is disabled. Please contact an administrator.");
         }
         
-        // Find book by ID
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
         
-        // Find active borrow record for this book
         BorrowRecord borrowRecord = borrowRecordRepository.findByBookAndReturnDateIsNull(book)
                 .orElseThrow(() -> new ResourceNotFoundException("No active loan found for book with id: " + bookId));
         
-        // Ensure the user returning the book is the one who borrowed it or is a librarian
         if (!borrowRecord.getUser().getId().equals(user.getId()) && 
             !user.getRole().name().equals("LIBRARIAN")) {
             throw new ForbiddenException("You can only return books that you borrowed");
         }
         
-        // Update borrow record
         borrowRecord.setReturnDate(LocalDateTime.now());
         
-        // Validate dates
         validateBorrowRecordDates(borrowRecord);
         
         borrowRecordRepository.save(borrowRecord);
         
-        // Update book availability
         book.setAvailable(true);
         bookRepository.save(book);
         
-        // Publish book availability event
         publishAvailabilityEvent(book);
         
         log.info("Book {} returned by {}", book.getTitle(), user.getEmail());
@@ -155,7 +133,6 @@ public class BorrowServiceImpl implements BorrowService {
     public List<BorrowRecordDTO> getCurrentUserBorrowHistory() {
         User user = getCurrentUser();
         
-        // Check if user account is enabled
         if (!user.isEnabled()) {
             throw new ForbiddenException("Your account is disabled. Please contact an administrator.");
         }
@@ -170,7 +147,6 @@ public class BorrowServiceImpl implements BorrowService {
     public List<BorrowRecordDTO> getCurrentUserActiveLoans() {
         User user = getCurrentUser();
         
-        // Check if user account is enabled
         if (!user.isEnabled()) {
             throw new ForbiddenException("Your account is disabled. Please contact an administrator.");
         }
@@ -206,7 +182,7 @@ public class BorrowServiceImpl implements BorrowService {
         
         log.info("Processing {} overdue books", overdueRecords.size());
         
-        // Just log overdue books information
+        // Log overdue books information
         for (BorrowRecord record : overdueRecords) {
             log.info("Overdue book: '{}' borrowed by {} {}, due date was {}", 
                     record.getBook().getTitle(), 

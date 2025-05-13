@@ -13,10 +13,6 @@ import org.springframework.core.io.support.ResourcePropertySource;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Configuration class for loading environment variables from .env file
- * Used primarily in production profile
- */
 @Configuration
 @Slf4j
 public class EnvConfig {

@@ -35,12 +35,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("Email is already taken");
         }
 
-        // Create new user with PATRON role by default
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -48,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.PATRON);
         user.setContactDetails(request.getContactDetails());
-        user.setEnabled(true); // New users are enabled by default
+        user.setEnabled(true);
 
         User savedUser = userRepository.save(user);
         log.info("User registered successfully: {}", savedUser.getEmail());
@@ -67,7 +65,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        // This will throw an exception if authentication fails
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -75,7 +72,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
                 
-        // Check if user account is enabled
         if (!user.isEnabled()) {
             throw new BadRequestException("Account is disabled. Please contact an administrator.");
         }

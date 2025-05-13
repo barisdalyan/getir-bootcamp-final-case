@@ -32,7 +32,7 @@ public class BookAvailabilityServiceImpl implements BookAvailabilityService {
             if (emitResult.isFailure()) {
                 log.error("Failed to emit book availability event: {}, result: {}", event, emitResult);
             }
-            return false; // Don't retry
+            return false;
         });
     }
 

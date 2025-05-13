@@ -30,7 +30,7 @@ public class BookMapper {
         book.setIsbn(request.getIsbn());
         book.setPublicationDate(request.getPublicationDate());
         book.setGenre(request.getGenre());
-        book.setAvailable(true); // New books are available by default
+        book.setAvailable(true);
         return book;
     }
     
@@ -50,6 +50,5 @@ public class BookMapper {
         if (request.getAvailable() != null) {
             book.setAvailable(request.getAvailable());
         }
-        // ISBN is not updateable as it's a unique identifier
     }
 }
