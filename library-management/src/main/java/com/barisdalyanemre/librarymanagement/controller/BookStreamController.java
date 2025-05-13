@@ -3,6 +3,10 @@ package com.barisdalyanemre.librarymanagement.controller;
 import com.barisdalyanemre.librarymanagement.event.BookAvailabilityEvent;
 import com.barisdalyanemre.librarymanagement.service.BookAvailabilityService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,13 @@ public class BookStreamController {
         summary = "Stream book availability updates", 
         description = "Returns a Server-Sent Events (SSE) stream of real-time book availability updates"
     )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Stream established successfully",
+                content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE, 
+                schema = @Schema(implementation = BookAvailabilityEvent.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "503", description = "Service unavailable - streaming service not available")
+    })
     public Flux<BookAvailabilityEvent> streamBookAvailability() {
         log.info("Client subscribed to book availability stream");
         return bookAvailabilityService.getAvailabilityEventStream()
