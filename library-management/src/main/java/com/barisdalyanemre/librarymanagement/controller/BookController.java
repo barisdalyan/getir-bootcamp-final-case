@@ -3,6 +3,7 @@ package com.barisdalyanemre.librarymanagement.controller;
 import com.barisdalyanemre.librarymanagement.dto.request.BookSearchRequest;
 import com.barisdalyanemre.librarymanagement.dto.request.CreateBookRequest;
 import com.barisdalyanemre.librarymanagement.dto.request.UpdateBookRequest;
+import com.barisdalyanemre.librarymanagement.dto.response.ApiError;
 import com.barisdalyanemre.librarymanagement.dto.response.BookDTO;
 import com.barisdalyanemre.librarymanagement.service.BookService;
 
@@ -43,12 +44,16 @@ public class BookController {
     @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Add a new book", description = "Create a new book entry. Only accessible to librarians.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Book created successfully",
-                content = @Content(schema = @Schema(implementation = BookDTO.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role"),
-        @ApiResponse(responseCode = "409", description = "Book with the same ISBN already exists")
+            @ApiResponse(responseCode = "201", description = "Book created successfully",
+                    content = @Content(schema = @Schema(implementation = BookDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "409", description = "Book with the same ISBN already exists",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<BookDTO> createBook(@Valid @RequestBody CreateBookRequest request) {
         log.info("Request to create a new book with ISBN: {}", request.getIsbn());
@@ -59,10 +64,12 @@ public class BookController {
     @GetMapping("/{id}")
     @Operation(summary = "Get book by ID", description = "Retrieve a book's details by ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Book found",
-                content = @Content(schema = @Schema(implementation = BookDTO.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "404", description = "Book not found")
+            @ApiResponse(responseCode = "200", description = "Book found",
+                    content = @Content(schema = @Schema(implementation = BookDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Book not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<BookDTO> getBookById(@PathVariable Long id) {
         log.info("Request to get book with ID: {}", id);
@@ -72,10 +79,12 @@ public class BookController {
     @GetMapping("/isbn/{isbn}")
     @Operation(summary = "Get book by ISBN", description = "Retrieve a book's details by ISBN")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Book found",
-                content = @Content(schema = @Schema(implementation = BookDTO.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "404", description = "Book not found")
+            @ApiResponse(responseCode = "200", description = "Book found",
+                    content = @Content(schema = @Schema(implementation = BookDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Book not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<BookDTO> getBookByIsbn(@PathVariable String isbn) {
         log.info("Request to get book with ISBN: {}", isbn);
@@ -88,8 +97,10 @@ public class BookController {
         description = "Retrieve a paginated list of books with optional sorting"
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Books retrieved successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized")
+            @ApiResponse(responseCode = "200", description = "Books retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = BookDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<Page<BookDTO>> getAllBooks(
             @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
@@ -110,9 +121,11 @@ public class BookController {
         description = "Search for books based on various criteria like title, author, genre, availability, and publication date range with pagination support"
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Search results retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid search parameters"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized")
+            @ApiResponse(responseCode = "200", description = "Search results retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid search parameters",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<Page<BookDTO>> searchBooks(
             @Parameter(description = "Title (partial match)") @RequestParam(required = false) String title,
@@ -154,13 +167,18 @@ public class BookController {
     @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Update book", description = "Update an existing book's details. Only accessible to librarians.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Book updated successfully",
-                content = @Content(schema = @Schema(implementation = BookDTO.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role"),
-        @ApiResponse(responseCode = "404", description = "Book not found"),
-        @ApiResponse(responseCode = "409", description = "Book with the same ISBN already exists")
+            @ApiResponse(responseCode = "200", description = "Book updated successfully",
+                    content = @Content(schema = @Schema(implementation = BookDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Book not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "409", description = "Book with the same ISBN already exists",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<BookDTO> updateBook(@PathVariable Long id, @Valid @RequestBody UpdateBookRequest request) {
         log.info("Request to update book with ID: {}", id);
@@ -171,11 +189,15 @@ public class BookController {
     @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Delete book", description = "Delete a book by ID. Only accessible to librarians.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Book deleted successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role"),
-        @ApiResponse(responseCode = "404", description = "Book not found"),
-        @ApiResponse(responseCode = "409", description = "Cannot delete book that is currently borrowed")
+            @ApiResponse(responseCode = "204", description = "Book deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Book not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "409", description = "Cannot delete book that is currently borrowed",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         log.info("Request to delete book with ID: {}", id);
@@ -190,11 +212,14 @@ public class BookController {
         description = "Update a book's availability status. Only accessible to librarians."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Book availability updated successfully",
-                content = @Content(schema = @Schema(implementation = BookDTO.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role"),
-        @ApiResponse(responseCode = "404", description = "Book not found")
+            @ApiResponse(responseCode = "200", description = "Book availability updated successfully",
+                    content = @Content(schema = @Schema(implementation = BookDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - requires LIBRARIAN role",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "404", description = "Book not found",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<BookDTO> updateBookAvailability(
             @PathVariable Long id, 

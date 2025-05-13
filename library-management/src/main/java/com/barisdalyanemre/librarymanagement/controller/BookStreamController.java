@@ -1,5 +1,6 @@
 package com.barisdalyanemre.librarymanagement.controller;
 
+import com.barisdalyanemre.librarymanagement.dto.response.ApiError;
 import com.barisdalyanemre.librarymanagement.event.BookAvailabilityEvent;
 import com.barisdalyanemre.librarymanagement.service.BookAvailabilityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,11 +34,13 @@ public class BookStreamController {
         description = "Returns a Server-Sent Events (SSE) stream of real-time book availability updates"
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Stream established successfully",
-                content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE, 
-                schema = @Schema(implementation = BookAvailabilityEvent.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "503", description = "Service unavailable - streaming service not available")
+            @ApiResponse(responseCode = "200", description = "Stream established successfully",
+                    content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+                            schema = @Schema(implementation = BookAvailabilityEvent.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "503", description = "Service unavailable – streaming service not available",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     public Flux<BookAvailabilityEvent> streamBookAvailability() {
         log.info("Client subscribed to book availability stream");
